@@ -1,4 +1,4 @@
-name: Build icons.json
+name: Build icon data
 
 on:
   push:
@@ -6,17 +6,20 @@ on:
       - main
     paths:
       - "icons/*.svg"
+      - "icons/*.json"
+      - "scripts/build-icons-json.mjs"
+      - ".github/workflows/build-icons-json.yml"
   workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  build-icons-json:
+  build-icons-data:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v5
 
       - name: Setup Node
@@ -24,27 +27,19 @@ jobs:
         with:
           node-version: 22
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
-
-      - name: Install dependencies
-        run: pnpm install
-
-      - name: Generate icons.json
+      - name: Build dist files
         run: node scripts/build-icons-json.mjs
 
-      - name: Commit icons.json
+      - name: Commit generated files
         run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           if git diff --quiet; then
             echo "No changes"
             exit 0
           fi
 
-          git add icons.json
-          git commit -m "update icons.json"
+          git add dist/icons.json dist/icons.min.json dist/icons-meta.json dist/icons-search.json
+          git commit -m "chore: update generated icon data"
           git push
