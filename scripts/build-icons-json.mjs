@@ -22,6 +22,11 @@ function getSvgFiles(dir) {
     .sort((a, b) => a.localeCompare(b));
 }
 
+function readJsonIfExists(filePath) {
+  if (!fs.existsSync(filePath)) return null;
+  return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+}
+
 function main() {
   if (!fs.existsSync(ICONS_DIR)) {
     throw new Error(`icons directory not found: ${ICONS_DIR}`);
@@ -30,14 +35,18 @@ function main() {
   const svgFiles = getSvgFiles(ICONS_DIR);
   const result = {};
 
-  for (const filePath of svgFiles) {
-    const fileName = path.basename(filePath, '.svg');
-    const svg = fs.readFileSync(filePath, 'utf8');
+  for (const svgPath of svgFiles) {
+    const iconName = path.basename(svgPath, '.svg');
+    const jsonPath = path.join(ICONS_DIR, `${iconName}.json`);
 
-    result[fileName] = {
-      name: fileName,
-      path: `icons/${path.basename(filePath)}`,
+    const svg = fs.readFileSync(svgPath, 'utf8');
+    const meta = readJsonIfExists(jsonPath);
+
+    result[iconName] = {
+      name: iconName,
+      path: `icons/${iconName}.svg`,
       svg: normalizeSvg(svg),
+      ...meta,
     };
   }
 
