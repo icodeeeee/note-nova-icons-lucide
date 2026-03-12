@@ -27,6 +27,11 @@ jobs:
         with:
           node-version: 24
 
+      - name: Enable pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.24.0 --activate
+
       - name: Build dist files
         run: node scripts/build-icons-json.mjs
 
