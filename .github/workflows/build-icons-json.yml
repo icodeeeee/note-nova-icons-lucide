@@ -24,6 +24,14 @@ jobs:
         with:
           node-version: 22
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Install dependencies
+        run: pnpm install
+
       - name: Generate icons.json
         run: node scripts/build-icons-json.mjs
 
